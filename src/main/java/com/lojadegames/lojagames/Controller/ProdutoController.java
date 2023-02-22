@@ -1,6 +1,7 @@
 package com.lojadegames.lojagames.Controller;
 
-import com.lojadegames.lojagames.Repository.ProdutoRpository;
+import com.lojadegames.lojagames.Repository.CategoriaRepository;
+import com.lojadegames.lojagames.Repository.ProdutoRepository;
 import com.lojadegames.lojagames.model.Produto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,10 @@ import java.util.Optional;
 @CrossOrigin(origins =  "*", allowedHeaders = "*")
 public class ProdutoController {
     @Autowired
-    private ProdutoRpository produtoRepository;
+    private ProdutoRepository produtoRepository;
+
+    @Autowired
+    private CategoriaRepository categoriaRepository;
 
     //Criando metodo para buscar todos os produtos
     @GetMapping
@@ -46,17 +50,25 @@ public class ProdutoController {
 
     //Criando metodo para cadastrar os produtos
 @PostMapping
-    public ResponseEntity<Produto> post(@Valid @RequestBody Produto produto) {
+    public ResponseEntity<Produto> post(@Valid @RequestBody Produto produto){
+    if (categoriaRepository.existsById(produto.getCategoria().getId()))
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(produtoRepository.save(produto));
-    }
+                .body(produtoRepository.save(produto));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+}
     //Criando metodo para atualizar produtos
     @PutMapping
     public ResponseEntity<Produto> put(@Valid @RequestBody Produto produto){
-        return produtoRepository.findById(produto.getId())
-                .map(resposta -> ResponseEntity.status(HttpStatus.OK)
-                .body(produtoRepository.save(produto)))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+       if (produtoRepository.existsById(produto.getId())){
+           if (categoriaRepository.existsById(produto.getCategoria().getId()))
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(produtoRepository.save(produto));
+
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+       }
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+
     }
 
     //Criando  metodo de deletar produtos

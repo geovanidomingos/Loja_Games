@@ -1,5 +1,6 @@
 package com.lojadegames.lojagames.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -40,6 +41,13 @@ public class Produto {
     @UpdateTimestamp // configura a data com relação a data do sistema
     private LocalDateTime data;
 
+    //Criando relacionamento de tabelas ManyToOne
+    @ManyToOne
+    @JsonIgnoreProperties("produto")
+    private Categoria categoria;
+
+
+    //Getter e Setters
     public Long getId() {
         return id;
     }
@@ -102,5 +110,12 @@ public class Produto {
 
     public void setData(LocalDateTime data) {
         this.data = data;
+    }
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
     }
 }
